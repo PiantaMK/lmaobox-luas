@@ -1,7 +1,10 @@
-
 --- ##### OPTIONS ##### ---
 local fontsize = 14
-local duration = 2  -- in seconds
+local duration = 2  -- in sec
+local animspeed = 0.15 -- in sec
+local accentcolor = {255, 101, 101}
+local textcolor = {255, 255, 255}
+local fadecolor = {54, 54, 54}
 local padding = 4 -- in px
 --- ################### ---
 
@@ -16,28 +19,35 @@ end
 function drawToasts()
     local w, h = draw.GetScreenSize()
     local drawy = 0
+    local initialOffsetX = -150 -- starting x pos & fade length
 
     draw.SetFont(toastfont)
+
+
+--  for i = #toastList, 1, -1 do
+--      local toast = toastList[i]
+-- replace "for i, toast in ipairs(toastList)" to make the toasts appear in reverse order
+
     for i, toast in ipairs(toastList) do
-	
         local timeElapsed = globals.RealTime() - toast.time
-		
         if timeElapsed < duration then
-
             local fade = 1 - (timeElapsed / duration)  -- fade out effect
-			alpha = math.floor(255 * fade)
-			
-			if alpha >= 2 then
-                draw.Color(54, 54, 54, 255)
-                draw.FilledRectFade(1, drawy, 150, drawy + fontsize + padding, 200, 0, true)
+            local alpha = math.floor(255 * fade)
+            local animationProgress = math.min(1, timeElapsed / animspeed)
+            local animatedX = initialOffsetX + (1 - initialOffsetX) * animationProgress
+            animatedX = math.floor(animatedX)
 
-                draw.Color(255, 255, 255, alpha)
-				draw.Text(5, drawy + (padding // 2), toast.text)
-                draw.Color(255, 101, 101, alpha)
-				draw.Line(0, drawy, 0, drawy + fontsize + padding - 1)
+            if alpha >= 2 then
+                draw.Color(fadecolor[1], fadecolor[2], fadecolor[3], 255)
+                draw.FilledRectFade(animatedX, drawy, animatedX - initialOffsetX, drawy + fontsize + padding, alpha, 0, true)
 
-				drawy = drawy + fontsize + padding
-			end
+                draw.Color(textcolor[1], textcolor[2], textcolor[3], alpha)
+                draw.Text(animatedX + 5, drawy + (padding // 2), toast.text)
+                draw.Color(accentcolor[1], accentcolor[2], accentcolor[3], alpha)
+                draw.Line(animatedX, drawy, animatedX, drawy + fontsize + padding - 1)
+
+                drawy = drawy + fontsize + padding
+            end
         else
             table.remove(toastList, i)
         end
@@ -67,33 +77,3 @@ local function damageLogger(event)
 end
 
 callbacks.Register("FireGameEvent", "exampledamageLogger", damageLogger)
-
-
---[[
-
-local myfont = draw.CreateFont( "verdana", 2 ^ 4, 800, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE | FONTFLAG_DROPSHADOW )
-
-local w, h = draw.GetScreenSize()
-local cw, ch = w // 2, h // 2 + 15
-
-function toasts(text)
-
-	text = "hi"
-
-	toastsdrawn = 0
-	constx = 0
-	drawy = toastsdrawn*15
-	
-	draw.SetFont(myfont)
-	draw.Color(255, 255, 255, 255)
-
-	
-	draw.Color(255, drawy, 0, 255)
-	draw.Line(constx, drawy, 0, drawy + 15)
-
-	tw, th = draw.GetTextSize( text )
-	draw.Text( 5, 0 + drawy, text )
-end
-
-callbacks.Register("Draw", "draw", toasts)
-]]--
