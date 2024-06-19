@@ -1,5 +1,5 @@
 --- ##### OPTIONS ##### ---
-local fontsize = 14
+local fontsize = 12
 local padding = 4 -- in px
 local duration = 2  -- in sec
 local animspeed = 0.15 -- in sec
@@ -9,7 +9,7 @@ local textcolor = {255, 255, 255}
 local fadecolor = {54, 54, 54}
 --- ################### ---
 
-local toastfont = draw.CreateFont('Tahoma', -11, 400, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE)
+local toastfont = draw.CreateFont('Tahoma', fontsize, 400, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE)
 local toastList = {}
 
 engine.PlaySound("ui/buttonclick.wav")
@@ -32,10 +32,10 @@ function drawToasts()
     draw.SetFont(toastfont)
 
 --  for i = #toastList, 1, -1 do
---      local toast = toastList[i]
 -- replace "for i, toast in ipairs(toastList)" to make the toasts appear in reverse order
 
     for i, toast in ipairs(toastList) do
+        local toast = toastList[i]
         local timeElapsed = globals.RealTime() - toast.time
         if timeElapsed < duration then
             local fade = 1 - (timeElapsed / duration)  -- fade out effect
