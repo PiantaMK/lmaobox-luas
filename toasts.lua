@@ -1,19 +1,27 @@
 --- ##### OPTIONS ##### ---
 local fontsize = 14
+local padding = 4 -- in px
 local duration = 2  -- in sec
 local animspeed = 0.15 -- in sec
+local toastcap = 15
 local accentcolor = {255, 101, 101}
 local textcolor = {255, 255, 255}
 local fadecolor = {54, 54, 54}
-local padding = 4 -- in px
 --- ################### ---
 
 local toastfont = draw.CreateFont('Tahoma', -11, 400, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE)
 local toastList = {}
 
+engine.PlaySound("ui/buttonclick.wav")
+
 -- so i can trigger new toasts easily
 function toasts(text)
-    table.insert(toastList, {text = text, time = globals.RealTime()})
+    if #toastList < toastcap then
+        table.insert(toastList, {text = text, time = globals.RealTime()})
+    else
+        table.remove(toastList, 1)  -- remove oldest toasts if the cap was hit
+        table.insert(toastList, {text = text, time = globals.RealTime()})
+    end
 end
 
 function drawToasts()
@@ -22,7 +30,6 @@ function drawToasts()
     local initialOffsetX = -150 -- starting x pos & fade length
 
     draw.SetFont(toastfont)
-
 
 --  for i = #toastList, 1, -1 do
 --      local toast = toastList[i]
@@ -43,6 +50,7 @@ function drawToasts()
 
                 draw.Color(textcolor[1], textcolor[2], textcolor[3], alpha)
                 draw.Text(animatedX + 5, drawy + (padding // 2), toast.text)
+
                 draw.Color(accentcolor[1], accentcolor[2], accentcolor[3], alpha)
                 draw.Line(animatedX, drawy, animatedX, drawy + fontsize + padding - 1)
 
@@ -66,12 +74,12 @@ local function damageLogger(event)
         local attacker = entities.GetByUserID(event:GetInt("attacker"))
         local damage = event:GetInt("damageamount")
 
-        if (attacker == nil or localPlayer:GetIndex() ~= attacker:GetIndex()) then
+        if (attacker == nil or localPlayer:GetIndex() ~= attacker:GetIndex() or localPlayer:GetIndex() == victim:GetIndex()) then
             return
         end
 
         local message = victim:GetName() .. " -" .. damage .. " hp (" .. health .. " left)"
-        
+      
         toasts(message)
     end
 end

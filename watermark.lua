@@ -13,6 +13,8 @@ local frequency = 0.5 -- controls the speed of color change
 local fps = 0
 local ms = 0
 
+engine.PlaySound("ui/buttonclick.wav")
+
 local function LerpBetweenColors(color1, color2, t) -- credits: Muqa
     t = math.max(0, math.min(1, t))
     local r1, g1, b1 = color1[1], color1[2], color1[3]
