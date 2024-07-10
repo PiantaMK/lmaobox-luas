@@ -121,6 +121,8 @@ local lastToggleTime = 0
 local initial_value = gui.GetValue("Trigger Shoot Key")
 local x, y = draw.GetScreenSize()
 local text = ""
+local fontoption = gui.GetValue('Font')
+local font = draw.CreateFont(fontoption, 12, 400, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE)
 
 local function GetPressedKey()
     for i = 1, 113 do 
@@ -133,8 +135,6 @@ local function GetPressedKey()
 end
 
 local function main()
-    local fontoption = gui.GetValue('Font')
-    local font = draw.CreateFont(fontoption, 12, 400, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE)
     draw.SetFont(font)
     draw.Color(255, 255, 255, 255)
 
