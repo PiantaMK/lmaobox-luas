@@ -233,7 +233,7 @@ local function draw_dist()
     local tw, th = draw.GetTextSize(distext)
 
     draw.Color(255, 255, 255, 255)
-    draw.Text(w // 2 - (tw//2), math.floor(0.6*h), distext)
+    draw.Text(w // 2 - (tw//2), math.floor(0.6*h), distext) -- text
 end
 
 
@@ -310,7 +310,7 @@ local function DrawPlayerVelocity()
         cap_hit = false
     end
 
-    -- debug stuff
+    --- debug
     if show_debug_info then
         draw.SetFont(debug_font)
         local dbgx = 10
@@ -333,6 +333,7 @@ local function DrawPlayerVelocity()
         local rounded_mem = string.format("%.2f", mem_usage)
         draw.Text(dbgx, dbgy + (7*12), "mem_usage: " .. rounded_mem .. " MB")
     end
+    ---------------------------
 
     if speed then
         draw.Color(255, 255, 255, 255)

@@ -8,13 +8,25 @@ https://github.com/OneshotGH/supremacy/blob/master/notify.h
 
 local font = draw.CreateFont("Lucida Console", 10, 500, FONTFLAG_DROPSHADOW)
 Notify = {
-    notify_texts = {}
+    notify_texts = {},
+    max_notifications = 6
 }
 
+---@param text string
+---@param time number
+---@param color table
+---@param print_to_console boolean
 function Notify:Add(text, time, color, print_to_console)
     time = time or 8.0 -- default: 8 sec
     color = color or {255, 255, 255, 255}
     print_to_console = print_to_console or false -- if enabled any notification will be also printed in the console
+
+    if self.max_notifications then
+        if #self.notify_texts >= self.max_notifications then
+            table.remove(self.notify_texts, 1) -- remove the oldest notification
+        end
+    end
+
     table.insert(self.notify_texts, {text = text, color = color, time = time})
     if print_to_console then
         printc(color[1], color[2], color[3], color[4], text)
@@ -49,7 +61,7 @@ function Notify:Think()
             color[4] = 255
         end
         if color[4] and color[4] > 1 then
-            if engine.Con_IsVisible() or engine.IsGameUIVisible() then
+            if engine.IsTakingScreenshot() then
                 return
             end
             draw.Color(table.unpack(color))

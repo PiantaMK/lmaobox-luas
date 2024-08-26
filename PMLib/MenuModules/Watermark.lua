@@ -8,7 +8,7 @@ Watermark = {
 }
 
 --- ##### GENERAL OPTIONS ##### ---
-local box_padding = 5
+local box_padding = 4
 local accentlinewidth = 1
 --- ########################### ---
 local fps = 0
@@ -21,16 +21,11 @@ local function GetCurrentTime()
     return hour, minute
 end
 
-local function IsMouseInBounds(x1, y1, x2, y2)
-    local mouseX, mouseY = input.GetMousePos()[1], input.GetMousePos()[2]
-    return mouseX >= x1 and mouseX <= x2 and mouseY >= y1 and mouseY <= y2
-end
-
 function Watermark:DrawWatermark()
     local localPlayer = entities.GetLocalPlayer()
     local nickname = localPlayer and localPlayer:GetName() or "error"
 
-    if engine.Con_IsVisible() or engine.IsGameUIVisible() then
+    if engine.Con_IsVisible() or engine.IsGameUIVisible() or engine.IsTakingScreenshot() then
         return
     end
 

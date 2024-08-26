@@ -2,12 +2,21 @@ Window = {
     font = draw.CreateFont("Tahoma", 12, 400, FONTFLAG_DROPSHADOW)
 }
 
-local window_state = {}
+Window_state = {}
 local previous_lmb = false
+
+---@param window_id string
+---@param m_x number
+---@param m_y number
+---@param m_width number
+---@param m_height number
+---@param enable_dragging boolean
+---@param enable_tabs boolean
+---Will return the current x and y position of the window
 function Window:SetupWindow(window_id, m_x, m_y, m_width, m_height, enable_dragging, enable_tabs)
     draw.SetFont(Window.font)
-    if not window_state[window_id] then
-        window_state[window_id] = {
+    if not Window_state[window_id] then
+        Window_state[window_id] = {
             dragging = false,
             drag_offset_x = 0,
             drag_offset_y = 0,
@@ -19,7 +28,7 @@ function Window:SetupWindow(window_id, m_x, m_y, m_width, m_height, enable_dragg
         }
     end
 
-    local window = window_state[window_id]
+    local window = Window_state[window_id]
 
     if MENU_OPEN then
         draw.Color(5, 5, 5, 255)
@@ -80,7 +89,7 @@ function Window:SetupWindow(window_id, m_x, m_y, m_width, m_height, enable_dragg
 
 
         if window.enable_dragging then
-            for id, win in pairs(window_state) do
+            for _, win in pairs(Window_state) do
                 if IsMouseInBounds(win.x, win.y, win.x + win.width, win.y + win.height) and not IsMouseInBounds(win.x + 6, win.y + 6, win.x + win.width - 12, win.y + win.height - 12) then
                     if LMBDown and not previous_lmb then
                         if not win.dragging then

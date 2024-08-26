@@ -1,5 +1,5 @@
 --- ##### GENERAL OPTIONS ##### ---
-local font = draw.CreateFont("verdana", 12, 800, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE | FONTFLAG_DROPSHADOW)
+local font = draw.CreateFont("verdana", 16, 800, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE | FONTFLAG_DROPSHADOW)
 local box_padding = 5
 local accentlinewidth = 2
 local num_segments = 100 -- decrease this if you have performance issues
@@ -25,7 +25,7 @@ local function LerpBetweenColors(color1, color2, t) -- credits: Muqa
     return r, g, b
 end
 
-local function doDraw()
+local function draw_watermark()
     if engine.Con_IsVisible() or engine.IsGameUIVisible() then
         return
     end
@@ -46,7 +46,7 @@ local function doDraw()
 	
 	--- ##### POSITION OPTIONS ##### ---
     local box_startx = 10 -- right (use w - boxw - 10 for left)
-    local box_starty = h - boxh - 10 -- top (remove "h -" for bottom)
+    local box_starty = 10 -- top (remove "h -" for top)
 	--- ############################ ---
 
     draw.Color(0, 0, 0, 150)
@@ -66,4 +66,4 @@ local function doDraw()
     draw.Text(w - box_startx - boxw + box_padding, box_starty + box_padding, text) -- text
 end
 
-callbacks.Register("Draw", "mydraw", doDraw)
+callbacks.Register("Draw", "mydraw", draw_watermark)

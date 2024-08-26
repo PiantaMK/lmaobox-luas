@@ -1,9 +1,8 @@
 Keybind = {
     font = draw.CreateFont("Tahoma", 12, 400, FONTFLAG_DROPSHADOW)
 }
-local keybind_state = {}
 
-local keybind_indicator_state = {
+Keybind_indicator_state = {
     dragging = false,
     drag_offset_x = 0,
     drag_offset_y = 0,
@@ -11,9 +10,24 @@ local keybind_indicator_state = {
     y = 500   -- Initial position
 }
 
+Keybind_states = {}
+
+---@param x number
+---@param y number
+---@param w number
+---@param h number
+---@param varName string
+---@param label string
+---@param initiallyToggle boolean
+---@param noshowType boolean
+---@param allowtypeChanges boolean
 function Keybind:Keybind(x, y, w, h, varName, label, initiallyToggle, noshowType, allowtypeChanges)
-    if not keybind_state[varName] then
-        keybind_state[varName] = {
+    
+    noshowType = noshowType or false
+    allowtypeChanges = allowtypeChanges or true
+
+    if not Keybind_states[varName] then
+        Keybind_states[varName] = {
             label = label,
             waiting_for_keybind = false,
             key = Values[varName] or nil,
@@ -21,16 +35,16 @@ function Keybind:Keybind(x, y, w, h, varName, label, initiallyToggle, noshowType
             wasRightMouseDown = false,
             active = false,
             keyPreviouslyPressed = false,
-            noshowType = noshowType or false,
-            allowtypeChanges = allowtypeChanges or true
+            noshowType = noshowType,
+            allowtypeChanges = allowtypeChanges
         }
     end
-    local state = keybind_state[varName]
+    local state = Keybind_states[varName]
     local key = state.key
     local ckey = KeyTable[key] or ""
     if state.waiting_for_keybind and input.IsButtonPressed(KEY_ESCAPE) then
         state.waiting_for_keybind = false
-        keybind_state[varName].key = nil
+        Keybind_states[varName].key = nil
     end
     if state.waiting_for_keybind then
         ckey = "..."
@@ -50,17 +64,18 @@ function Keybind:Keybind(x, y, w, h, varName, label, initiallyToggle, noshowType
         end
     end
     draw.Text(x, y - 15, label)
-    draw.Color(0, 0, 0, 255)
-    draw.OutlinedRect(x, y, x + w, y + h)
     
     draw.Color(41, 41, 41, 255)
     draw.FilledRect(x, y, x + w, y + h)
+
+    draw.Color(0, 0, 0, 255)
+    draw.FilledRectFade(x, y, x + w, y + h, 0, 150, false)
     
     draw.Color(201, 201, 201, 255)
     local tx, ty = draw.GetTextSize(ckey)
     draw.Text(x + 5, y + (h // 2) - (ty // 2), ckey)
     local isRightMouseDown = input.IsButtonDown(MOUSE_RIGHT)
-    if IsMouseInBounds(x, y, x + w, y + h) and isRightMouseDown and not state.wasRightMouseDown and not BlockInput and not Dropdown_open and allowtypeChanges then
+    if IsMouseInBounds(x, y, x + w, y + h) and isRightMouseDown and not state.wasRightMouseDown and not BlockInput and not Dropdown_open and state.allowtypeChanges then
         BlockInput = true
         state.toggle = not state.toggle
     end
@@ -75,20 +90,20 @@ function Keybind:Keybind(x, y, w, h, varName, label, initiallyToggle, noshowType
 end
 
 function Keybind:UpdateKeybindValues()
-    for varName, state in pairs(keybind_state) do
+    for varName, state in pairs(Keybind_states) do
         local key = state.key
-        if key then
+        if key and not (engine.Con_IsVisible() or engine.IsGameUIVisible()) then
             if state.toggle then
-                if input.IsButtonDown(key) and not state.keyPreviouslyPressed then
+                if input.IsButtonPressed(key) and not state.keyPreviouslyPressed then
                     state.active = not state.active
                     Values[varName] = state.active
                     state.keyPreviouslyPressed = true
-                elseif not input.IsButtonDown(key) then
+                elseif not input.IsButtonPressed(key) then
                     state.keyPreviouslyPressed = false
                 end
             else
-                Values[varName] = input.IsButtonDown(key)
-                state.active = input.IsButtonDown(key)
+                Values[varName] = input.IsButtonPressed(key)
+                state.active = input.IsButtonPressed(key)
             end
         end
     end
@@ -96,7 +111,7 @@ end
 
 local keybind_animations = {}
 function Keybind:KeybindIndicator()
-    if engine.Con_IsVisible() or engine.IsGameUIVisible() then
+    if engine.Con_IsVisible() or engine.IsGameUIVisible() or engine.IsTakingScreenshot() then
         return
     end
     draw.SetFont(Keybind.font)
@@ -104,35 +119,36 @@ function Keybind:KeybindIndicator()
     local headerw, headerh = draw.GetTextSize(header)
     local mouseX, mouseY = input.GetMousePos()[1], input.GetMousePos()[2]
     local LMBDown = input.IsButtonDown(MOUSE_LEFT)
+    local LMBPressed = input.IsButtonPressed(MOUSE_LEFT)
     
     -- update position if dragging
-    if keybind_indicator_state.dragging then
+    if Keybind_indicator_state.dragging then
         if LMBDown then
-            keybind_indicator_state.x = mouseX - keybind_indicator_state.drag_offset_x
-            keybind_indicator_state.y = mouseY - keybind_indicator_state.drag_offset_y
+            Keybind_indicator_state.x = mouseX - Keybind_indicator_state.drag_offset_x
+            Keybind_indicator_state.y = mouseY - Keybind_indicator_state.drag_offset_y
         else
-            keybind_indicator_state.dragging = false
+            Keybind_indicator_state.dragging = false
         end
     end
     
     -- should we start dragging?
-    if IsMouseInBounds(keybind_indicator_state.x - 70, keybind_indicator_state.y - 10, keybind_indicator_state.x + 70, keybind_indicator_state.y + 10) and LMBDown and not keybind_indicator_state.dragging and MENU_OPEN then
-        keybind_indicator_state.dragging = true
-        keybind_indicator_state.drag_offset_x = mouseX - keybind_indicator_state.x
-        keybind_indicator_state.drag_offset_y = mouseY - keybind_indicator_state.y
+    if IsMouseInBounds(Keybind_indicator_state.x - 70, Keybind_indicator_state.y - 10, Keybind_indicator_state.x + 70, Keybind_indicator_state.y + 10) and LMBPressed and not Keybind_indicator_state.dragging and MENU_OPEN then
+        Keybind_indicator_state.dragging = true
+        Keybind_indicator_state.drag_offset_x = mouseX - Keybind_indicator_state.x
+        Keybind_indicator_state.drag_offset_y = mouseY - Keybind_indicator_state.y
     end
     
     draw.Color(178, 4, 41, 255)
-    draw.FilledRect(keybind_indicator_state.x - 70, keybind_indicator_state.y - 11, keybind_indicator_state.x + 70, keybind_indicator_state.y - 10)
+    draw.FilledRect(Keybind_indicator_state.x - 70, Keybind_indicator_state.y - 11, Keybind_indicator_state.x + 70, Keybind_indicator_state.y - 10)
     
     draw.Color(0, 0, 0, 100)
-    draw.FilledRect(keybind_indicator_state.x - 70, keybind_indicator_state.y - 10, keybind_indicator_state.x + 70, keybind_indicator_state.y + 10)
+    draw.FilledRect(Keybind_indicator_state.x - 70, Keybind_indicator_state.y - 10, Keybind_indicator_state.x + 70, Keybind_indicator_state.y + 10)
     draw.Color(201, 201, 201, 255)
-    draw.Text(keybind_indicator_state.x - (headerw // 2), keybind_indicator_state.y - (headerh // 2), header)
+    draw.Text(Keybind_indicator_state.x - (headerw // 2), Keybind_indicator_state.y - (headerh // 2), header)
 
     -- display the status and type
     local yOffset = 10
-    for _, state in pairs(keybind_state) do
+    for _, state in pairs(Keybind_states) do
         local label = state.label
         local anim = keybind_animations[label]
         
@@ -174,14 +190,17 @@ function Keybind:KeybindIndicator()
             end
             
             if anim.alpha and anim.alpha > 5 then
-                local boxTopLeftX = keybind_indicator_state.x - 70
-                local boxTopLeftY = keybind_indicator_state.y + yOffset
-                local boxBottomRightX = keybind_indicator_state.x + 70
-                local boxBottomRightY = keybind_indicator_state.y + yOffset + 20
+                local boxTopLeftX = Keybind_indicator_state.x - 70
+                local boxTopLeftY = Keybind_indicator_state.y + yOffset
+                local boxBottomRightX = Keybind_indicator_state.x + 70
+                --local boxBottomRightY = Keybind_indicator_state.y + yOffset + 20
                 
-                local type = state.toggle and "[toggled]" or "[held]"
+                -- keybind name
                 draw.Color(201, 201, 201, math.floor(anim.alpha))
                 draw.Text(boxTopLeftX + 5, boxTopLeftY + 5 - math.floor(anim.yOffset), label)
+
+                -- keybind type
+                local type = state.toggle and "[toggled]" or "[held]"
                 local typew, _ = draw.GetTextSize(type)
                 draw.Color(201, 201, 201, math.floor(anim.alpha))
                 draw.Text(boxBottomRightX - typew - 5, boxTopLeftY + 5 - math.floor(anim.yOffset), type)

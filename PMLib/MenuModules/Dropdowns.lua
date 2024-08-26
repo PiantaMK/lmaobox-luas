@@ -1,5 +1,13 @@
 Dropdowns = {}
 
+---@param x number
+---@param y number
+---@param w number
+---@param h number
+---@param varName string
+---@param varLabels table
+---@param label string
+---Will become a multi-dropdown if varName is a table
 function Dropdowns:Dropdown(x, y, w, h, varName, varLabels, label)
     local item_height = 20
     local isMulti = type(Values[varName]) == "table"
@@ -15,8 +23,12 @@ function Dropdowns:Dropdown(x, y, w, h, varName, varLabels, label)
     -- dropdown box
     draw.Color(0, 0, 0, 255)
     draw.OutlinedRect(x, y, x + w, y + h)
+
     draw.Color(44, 44, 44, 255)
     draw.FilledRect(x + 1, y + 1, x + w - 1, y + h - 1)
+
+    draw.Color(0, 0, 0, 255)
+    draw.FilledRectFade(x, y, x + w, y + h, 0, 150, false)
 
     -- current selection
     draw.Color(201, 201, 201, 255)
@@ -78,6 +90,9 @@ function Dropdowns:Dropdown(x, y, w, h, varName, varLabels, label)
             draw.FilledRect(x + 1, item_y, x + w - 1, item_y + item_height)
             draw.Color(0, 0, 0, 100)
             draw.OutlinedRect(x + 1, item_y, x + w - 1, item_y + item_height)
+
+            draw.Color(0, 0, 0, 255)
+            draw.FilledRectFade(x, item_y, x + w, item_y + item_height, 0, 150, false)
 
             if isMulti then
                 if Values[varName][i] then

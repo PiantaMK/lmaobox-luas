@@ -15,210 +15,183 @@ VISUALS INSPIRED BY:
  - onetap v1 (https://i.postimg.cc/bNXj7JF6/onetap-v1.png)
 ]]
 
+-- minified loading logic (do not remove)
+local a,Utils=pcall(require,"MenuModules/Utils")local c,Notify=pcall(require,"MenuModules/Notify")local e,Window=pcall(require,"MenuModules/Window")local g,Checkbox=pcall(require,"MenuModules/Checkbox")local i,Button=pcall(require,"MenuModules/Button")local k,Slider=pcall(require,"MenuModules/Slider")local m,Dropdowns=pcall(require,"MenuModules/Dropdowns")local o,Keybind=pcall(require,"MenuModules/Keybind")local q,TextInput=pcall(require,"MenuModules/TextInput")local s,Colorpicker=pcall(require,"MenuModules/Colorpicker")local u,Island=pcall(require,"MenuModules/Island")local w,Watermark=pcall(require,"MenuModules/Watermark")local function y(z)package.loaded[z]=nil;_G[z]=nil end;local function A(B,C)if not C then client.ChatPrintf("\x07FF0000"..B.." module failed to load!")engine.PlaySound("common/bugreporter_failed.wav")return false end;return true end;if not A("Utils",a)then return end;if not A("Notify",c)then return end;if not A("Window",e)then return end;if not A("Checkbox",g)then return end;if not A("Button",i)then return end;if not A("Slider",k)then return end;if not A("Dropdowns",m)then return end;if not A("Keybind",o)then return end;if not A("TextInput",q)then return end;if not A("Colorpicker",s)then return end;if not A("Island",u)then return end;if not A("Watermark",w)then return end;collectgarbage("collect")engine.PlaySound("hl1/fvox/activated.wav")Notify:Add("PMLib loaded successfully!",3,{110,250,115,255},true)if c then if client.GetConVar("developer")~=0 then client.SetConVar("developer",0)end end;local function OnUnload()y("MenuModules/Utils")y("MenuModules/Notify")y("MenuModules/Window")y("MenuModules/Checkbox")y("MenuModules/Button")y("MenuModules/Slider")y("MenuModules/Dropdowns")y("MenuModules/Keybind")y("MenuModules/TextInput")y("MenuModules/Colorpicker")y("MenuModules/Island")y("MenuModules/Watermark")engine.PlaySound("hl1/fvox/deactivated.wav")end
+-- unminified: https://pastebin.com/raw/7xmrmaB7
 
-local HasNotify,Notify = pcall(require, "MenuModules/Notify")
-local HasWindow,Window = pcall(require, "MenuModules/Window")
-local HasCheckbox,Checkbox = pcall(require, "MenuModules/Checkbox") 
-local HasButton,Button = pcall(require, "MenuModules/Button") 
-local HasSlider,Slider = pcall(require, "MenuModules/Slider")
-local HasDropdowns,Dropdowns = pcall(require, "MenuModules/Dropdowns")
-local HasKeybind,Keybind = pcall(require, "MenuModules/Keybind")
-local HasTextInput,TextInput = pcall(require, "MenuModules/TextInput")
-local HasColorpicker,Colorpicker = pcall(require, "MenuModules/Colorpicker")
-local HasIsland,Island = pcall(require, "MenuModules/Island")
-local HasWatermark,Watermark = pcall(require, "MenuModules/Watermark")
-
-local function unrequire(m) package.loaded[m] = nil _G[m] = nil end -- from lbox toolbox by callie
-
-if (not(HasNotify)) then client.ChatPrintf("\x07FF0000Notify module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasWindow)) then client.ChatPrintf("\x07FF0000Window module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasCheckbox)) then client.ChatPrintf("\x07FF0000Checkbox module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasButton)) then client.ChatPrintf("\x07FF0000Button module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasSlider)) then client.ChatPrintf("\x07FF0000Slider module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasDropdowns)) then client.ChatPrintf("\x07FF0000Dropdowns module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasKeybind)) then client.ChatPrintf("\x07FF0000Keybind module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasTextInput)) then client.ChatPrintf("\x07FF0000TextInput module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasColorpicker)) then client.ChatPrintf("\x07FF0000Colorpicker module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasIsland)) then client.ChatPrintf("\x07FF0000Island module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-if (not(HasWatermark)) then client.ChatPrintf("\x07FF0000Watermark module failed to load!");engine.PlaySound("common/bugreporter_failed.wav") return end
-
-collectgarbage("collect") -- band aid fix
-
-engine.PlaySound("hl1/fvox/activated.wav")
-Notify:Add("PMLib loaded successfully!", 3, {110, 250, 115, 255}, true)
-
-if HasNotify then
-    if (client.GetConVar("developer") ~= 0) then
-        client.SetConVar( "developer", 0) end
-end
-
-local function OnUnload() 
-    unrequire("MenuModules/Notify")
-    unrequire("MenuModules/Window")
-    unrequire("MenuModules/Checkbox")
-    unrequire("MenuModules/Button")
-    unrequire("MenuModules/Slider")
-    unrequire("MenuModules/Dropdowns")
-    unrequire("MenuModules/Keybind")
-    unrequire("MenuModules/TextInput")
-    unrequire("MenuModules/Colorpicker")
-    unrequire("MenuModules/Island")
-    unrequire("MenuModules/Watermark")
-
-    engine.PlaySound("hl1/fvox/deactivated.wav")
-end
+---------------------------------------------------------- VARIABLES -------------------------------------------------------------
 
 MENU_OPEN = true
-local lastToggleTime = 0
-local function toggleMenu()
-    local currentTime = globals.RealTime()
-    if currentTime - lastToggleTime >= 0.1 then
-        MENU_OPEN = not MENU_OPEN
-
-        collectgarbage("collect")
-        -- band aid fix, will lag the game for a split second
-        -- if you are using other luas with memleaks
-        
-        lastToggleTime = currentTime
-    end
-end
-
-local function checkMenu() -- credits: muqa
-    if input.IsButtonPressed(KEY_END) or input.IsButtonPressed(KEY_INSERT) or input.IsButtonPressed(KEY_F11) then 
-        toggleMenu()
-    end
-end
-
 BlockInput = false
 Dropdown_open = nil
-KeyTable={[1]="0",[2]="1",[3]="2",[4]="3",[5]="4",[6]="5",[7]="6",[8]="7",[9]="8",[10]="9",[11]="a",[12]="b",[13]="c",[14]="d",[15]="e",[16]="f",[17]="g",[18]="h",[19]="i",[20]="j",[21]="k",[22]="l",[23]="m",[24]="n",[25]="o",[26]="p",[27]="q",[28]="r",[29]="s",[30]="t",[31]="u",[32]="v",[33]="w",[34]="x",[35]="y",[36]="z",[37]="num 0",[38]="num 1",[39]="num 2",[40]="num 3",[41]="num 4",[42]="num 5",[43]="num 6",[44]="num 7",[45]="num 8",[46]="num 9",[47]="num divide",[48]="num multiply",[49]="num minus",[50]="num plus",[51]="num enter",[52]="num decimal",[53]="lbracket",[54]="rbracket",[55]="semicolon",[56]="apostrophe",[57]="backquote",[58]="comma",[59]="period",[60]="slash",[61]="backslash",[62]="minus",[63]="equal",[64]="enter",[65]="space",[66]="backspace",[67]="tab",[68]="caps lock",[69]="num lock",[70]="escape",[71]="scroll lock",[72]="insert",[73]="delete",[74]="home",[75]="end",[76]="pageup",[77]="pagedown",[78]="break",[79]="lshift",[80]="rshift",[81]="lalt",[82]="ralt",[83]="lcontrol",[84]="rcontrol",[85]="lwin",[86]="rwin",[87]="app",[88]="up",[89]="left",[90]="down",[91]="right",[92]="f1",[93]="f2",[94]="f3",[95]="f4",[96]="f5",[97]="f6",[98]="f7",[99]="f8",[100]="f9",[101]="f10",[102]="f11",[103]="f12",[104]="caps lock toggle",[105]="num lock toggle",[106]="scroll lock toggle",[107]="mouse1",[108]="mouse2",[109]="mouse3",[110]="mouse4",[111]="mouse5",[112]="mousewheel up",[113]="mousewheel down"}
-InputTable={[1]="0",[2]="1",[3]="2",[4]="3",[5]="4",[6]="5",[7]="6",[8]="7",[9]="8",[10]="9",[11]="a",[12]="b",[13]="c",[14]="d",[15]="e",[16]="f",[17]="g",[18]="h",[19]="i",[20]="j",[21]="k",[22]="l",[23]="m",[24]="n",[25]="o",[26]="p",[27]="q",[28]="r",[29]="s",[30]="t",[31]="u",[32]="v",[33]="w",[34]="x",[35]="y",[36]="z",[37]="0",[38]="1",[39]="2",[40]="3",[41]="4",[42]="5",[43]="6",[44]="7",[45]="8",[46]="9",[47]="/",[48]="*",[49]="-",[50]="+",[53]="[",[54]="]",[55]=";",[56]="'",[57]="`",[58]=",",[59]=".",[60]="/",[61]="\\",[62]="-",[63]="=",[65]=" ",[67]="    "}
-
 Values = {
-    show_debug_info = false,
+    show_debug_info = true, -- hardcoded name
+    test_checkbox2 = true,
+    test_checkbox3 = true,
+    testvalue4 = 5,
+    test_dropdown1 = 2,
+    test_dropdown2 = 2,
+    test_multidropdown1 = {false, true, false},
+    test_keybind1 = nil,
+    test_keybind2 = nil,
+
+    testcolor1_r = 255,
+    testcolor1_g = 255,
+    testcolor1_b = 255,
+
+    testcolor2_r = 255,
+    testcolor2_g = 255,
+    testcolor2_b = 255,
+
+    test_textinput = "",
 }
 
-CURRENT_TAB = "tab1" -- the starting tab
+CURRENT_TAB = "tab1"
 Tabs = {
     "tab1",
-    "tab2"
+    "debug"
 }
 
-------------------------------------------------------------- UTILS -------------------------------------------------------------
+--[[
+local extending = true
+local lastCommandTime = 0
+local cooldown = 0.25
+local previousExtendingState = nil
 
-function GetPressedKey()
-    for i = 1, 113 do 
-        if input.IsButtonPressed(i) then
-            if i ~= 107 and i ~= 75 and i ~= 72 and i ~= 108 then 
-                return i
-            end
+local function extendSpec()
+    local bind = Keybind_states["test_keybind2"]
+    if not bind then return end
+    local t = globals.RealTime()
+    if t - lastCommandTime < cooldown then
+        return
+    end
+
+    local me = entities.GetLocalPlayer()
+    -- toggle check
+    if bind.toggle then
+        extending = bind.active
+    end
+
+    if extending ~= previousExtendingState then
+        if extending then
+            client.Command("menuopen", true)
+            Notify:Add("infinite spec enabled")
+        else
+            client.Command("menuclosed", true)
+            Notify:Add("infinite spec disabled")
         end
+        previousExtendingState = extending
     end
+
+    lastCommandTime = t
 end
 
-function Round(num)
-    if num >= 0 then
-        return math.floor(num + 0.5)
-    else
-        return math.ceil(num - 0.5)
-    end
-end
+callbacks.Unregister("Draw", "extendSpec")
+callbacks.Register("Draw", "extendSpec", extendSpec)
 
-function IsMouseInBounds(x,y,x2,y2)
-    local mX, mY = input.GetMousePos()[1], input.GetMousePos()[2]
-    if mX >= x and mX <= x2 and mY >= y and mY <= y2 then
-        return true 
+local delays = {
+    spy_warning = 0
+}
+
+local function IsVisible(player, localPlayer)
+    local me = localPlayer
+    local source = me:GetAbsOrigin() + me:GetPropVector( "localdata", "m_vecViewOffset[0]" );
+    local destination = player:GetAbsOrigin() + Vector3(0,0,75)
+    local trace = engine.TraceLine( source, destination, CONTENTS_SOLID | CONTENTS_GRATE | CONTENTS_MONSTER );
+    if (trace.entity ~= nil) then
+        if trace.entity == player then 
+            return true 
+        end
     end
     return false
 end
 
-------------------------------------------------------------- DEBUG -------------------------------------------------------------
-
-local function getMemoryUsage()
-    local mem = collectgarbage("count") / 1024
-    if mem > 800 then
-        collectgarbage("collect")
-        mem = collectgarbage("count") / 1024
-        Notify:Add("Garbage collected", 10.0, {255, 90, 90, 255}, true)
-    end
-    return mem
-end
-
-local dbg_font = draw.CreateFont("Lucida Console", 10, 0, 512)
-local function draw_debug()
-    if not Values.show_debug_info then return end
-    draw.SetFont(dbg_font)
-    draw.Color(230, 230, 180, 255)
-
-    local dbgx = 10
-    local dbgy = 200
-    local i = 1
-
-    draw.Text(dbgx, dbgy - 12, "Memory usage: " .. string.format("%.2f", getMemoryUsage()) .. " MB")
-    draw.Text(dbgx, dbgy, "Values:")
-    for key, value in pairs(Values) do
+-- TODO: make it look more like from fedware
+-- https://github.com/Fedoraware/Fedoraware/blob/main/Fedoraware/Fedoraware-TF2/src/Features/SpyWarning/SpyWarning.cpp
+local font = draw.CreateFont("Tahoma", 12, 400, FONTFLAG_DROPSHADOW)
+local function spywarn()
+    if Values.spywarn_enable then 
+        local players = entities.FindByClass("CTFPlayer") 
+        local sW, sH = draw.GetScreenSize()
+        draw.SetFont(font)
         
-        if type(value) == "table" then
-            local entries = {}
-            for _, entry in ipairs(value) do
-                table.insert(entries, tostring(entry))
+        local closestSpy = nil
+        local closestDistance = math.huge
+        
+        for i, spy in ipairs(players) do
+            if spy:GetPropInt("m_iClass") == TF2_Spy then 
+                local localPlayer = entities.GetLocalPlayer()
+                local spy_pos = spy:GetAbsOrigin()
+                local local_pos = localPlayer:GetAbsOrigin()
+                local distance = vector.Distance(spy_pos, local_pos)
+                
+                if (distance < Values.spywarn_activation_radius) and spy:IsAlive() and spy:GetTeamNumber() ~= localPlayer:GetTeamNumber() and not spy:IsDormant() and IsVisible(spy, localPlayer) then
+                    if distance < closestDistance then
+                        closestSpy = spy
+                        closestDistance = distance
+                    end
+                end
             end
-            local entries_str = "{" .. table.concat(entries, ", ") .. "}"
-            
-            draw.Text(dbgx, dbgy + i * 12, key .. " - " .. entries_str)
-        else
-            draw.Text(dbgx, dbgy + i * 12, key .. " - " .. tostring(value))
         end
         
-        i = i + 1
+        if closestSpy then
+            draw.Color(250, 85, 85, 255)
+            local warning = Values.spywarn_text:gsub("!dist!", math.floor(closestDistance))
+            local length, height = draw.GetTextSize(warning)
+            draw.Text(math.floor((sW * 0.5) - (length * 0.5)), math.floor(sH * 0.6), warning)
+            
+            if Values.spywarn_callout and (globals.RealTime() > (delays.spy_warning + 2.5)) then 
+                client.Command("voicemenu 1 1", true) -- Spy!
+                delays.spy_warning = globals.RealTime()
+            end
+        end
     end
 end
-------------------------------------------------------------- MENU -------------------------------------------------------------
+
+callbacks.Unregister("Draw", "spywarn")
+callbacks.Register("Draw", "spywarn", spywarn)]]--
+------------------------------------------------------------- MENU ---------------------------------------------------------------
 
 local screenx, screeny = draw.GetScreenSize()
 local w_x, w_y = Round(screenx*0.8), Round(screeny*0.4)
 local w_w, w_h = 320, 400
 
-local function UpdateKeybinds()
-    Keybind:UpdateKeybindValues()
-end
-
-
 local function menu()
     local dropdowns = {}
     local colorpickers = {}
 
-    draw_debug()
+    Utils:DrawDebugInfo(true)
 
-    Watermark:DrawWatermark()
-    Keybind:KeybindIndicator()
+    --Watermark:DrawWatermark()
+    --Keybind:KeybindIndicator()
 
     if MENU_OPEN then
         w_x, w_y = Window:SetupWindow("mainmenu", w_x - w_w//2, w_y, w_w, w_h, true, true)
 
         if CURRENT_TAB == "tab1" then
-            Checkbox:Checkbox(w_x + 20, w_y + 60, "show_debug_info", "show debug info")
-            -- put the elements for the 1st tab here
+            Checkbox:Checkbox(w_x + 20, w_y + 60, "test_checkbox2", "checkbox 2")
+            Checkbox:Checkbox(w_x + 20, w_y + 80, "test_checkbox3", "checkbox 3")
+            Slider:Slider(w_x + 20, w_y + 110, 130, 8, "testvalue4", 0, 50, "slider 4")
+            table.insert(dropdowns, {w_x + 20, w_y + 140, 130, 20, "test_dropdown1", {"option 1", "option 2", "option 3"}, "dropdown 5"})
+            Button:Button(w_x + 20, w_y + 170, 130, 20, "button 6", function() Notify:Add("Hi!") end)
+            table.insert(dropdowns, {w_x + 20, w_y + 210, 130, 20, "test_dropdown2", {"option 1", "option 2", "option 3"}, "dropdown 7"})
+            table.insert(dropdowns, {w_x + 20, w_y + 250, 130, 20, "test_multidropdown1", {"option 1", "option 2", "option 3"}, "multidropdown 8"})
+            Keybind:Keybind(w_x + 20, w_y + 290, 130, 20, "test_keybind1", "keybind 9", false)
+            Keybind:Keybind(w_x + 20, w_y + 340, 130, 20, "test_keybind2", "keybind 10", true, false, false)
+            Island:Island("test island", w_x + 154, 140, w_y + 45, w_y + 140)
+            table.insert(colorpickers, {w_x + 270, w_y + 65, 16, 6, "testcolor1"})
+            table.insert(colorpickers, {w_x + 270, w_y + 105, 16, 6, "testcolor2"})
+            TextInput:TextInput(w_x + 160, w_y + 75, 130, 20, "test_textinpt", "text input")
+            TextInput:TextInput(w_x + 160, w_y + 115, 130, 20, "test_textinput", "text input2")
         end
-        if CURRENT_TAB == "tab2" then
-            -- put the elements for the 2nd tab here
+        if CURRENT_TAB == "debug" then
+            Island:Island("debug", w_x + 15, 140, w_y + 45, w_y + 125)
+            Checkbox:Checkbox(w_x + 20, w_y + 70, "show_debug_info", "show debug info")
         end
-
-
 
         -- this is really dumb but i dont want to recode literally everything just to make specific items draw on top
-        table.sort(dropdowns, function(a, b)
-            return a[2] > b[2]
-        end)
-        table.sort(colorpickers, function(a, b)
-            return a[2] > b[2]
-        end)
-        for _, d in ipairs(dropdowns) do
-            Dropdowns:Dropdown(d[1], d[2], d[3], d[4], d[5], d[6], d[7])
-        end
-        for _, c in ipairs(colorpickers) do
-            Colorpicker:Colorpicker(c[1], c[2], c[3], c[4], c[5])
-        end
+        table.sort(dropdowns,function(a,b)return a[2]>b[2]end)table.sort(colorpickers,function(a,b)return a[2]>b[2]end)for c,d in ipairs(dropdowns)do Dropdowns:Dropdown(d[1],d[2],d[3],d[4],d[5],d[6],d[7])end;for c,e in ipairs(colorpickers)do Colorpicker:Colorpicker(e[1],e[2],e[3],e[4],e[5])end
+        -- unminified: https://pastebin.com/raw/70rwheck
 
         if input.IsButtonPressed(MOUSE_LEFT) then
             BlockInput = true
@@ -226,19 +199,21 @@ local function menu()
     end
 end
 
-------------------------------------------------------------- CALLBACKS -------------------------------------------------------------
+callbacks.Unregister("Draw", "draw_menu")
+callbacks.Register("Draw", "draw_menu", menu)
 
-callbacks.Unregister("CreateMove", "UpdateKeybinds")
-callbacks.Register("CreateMove", "UpdateKeybinds", UpdateKeybinds)
+--------------------------------------------- OTHER CALLBACKS (DO NOT REMOVE) ---------------------------------------------------
 
 callbacks.Unregister("Unload", "PMLib_unload")
 callbacks.Register("Unload", "PMLib_unload", OnUnload)
 
-callbacks.Unregister("Draw", "checkMenu")
-callbacks.Register("Draw", "checkMenu", checkMenu)
+callbacks.Unregister("CreateMove", "PMLib_UpdateKeybinds")
+callbacks.Register("CreateMove", "PMLib_UpdateKeybinds", function()
+    Keybind:UpdateKeybindValues()
+end) -- CreateMove
 
-callbacks.Unregister("Draw", "drawNotifs")
-callbacks.Register("Draw", "drawNotifs", function() Notify:Think() end)
-
-callbacks.Unregister("Draw", "draw_menu")
-callbacks.Register("Draw", "draw_menu", menu)
+callbacks.Unregister("Draw", "PMLib_Others")
+callbacks.Register("Draw", "PMLib_Others", function()
+    Utils:CheckMenu()
+    Notify:Think()
+end) -- Draw

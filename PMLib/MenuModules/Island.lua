@@ -1,5 +1,10 @@
 Island = {}
 
+---@param label string
+---@param x number
+---@param w number
+---@param starty number
+---@param endy number
 function Island:Island(label, x, w, starty, endy)
     draw.Color(201, 201, 201, 255)
     local fixedTextStartX = x + 10
@@ -13,6 +18,5 @@ function Island:Island(label, x, w, starty, endy)
     draw.Line(x + w, starty + (label_tstarty//2), x + w, endy)
     draw.Line(x, endy, x + w, endy)
 end
-
 
 return Island

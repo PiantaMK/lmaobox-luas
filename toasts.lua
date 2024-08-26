@@ -1,5 +1,5 @@
 --- ##### OPTIONS ##### ---
-local fontsize = 12
+local fontsize = 16
 local padding = 4 -- in px
 local duration = 2  -- in sec
 local animspeed = 0.15 -- in sec
@@ -9,13 +9,15 @@ local textcolor = {255, 255, 255}
 local fadecolor = {54, 54, 54}
 --- ################### ---
 
-local toastfont = draw.CreateFont('Tahoma', fontsize, 400, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE)
+local toastfont = draw.CreateFont('Tahoma', fontsize, 600, FONTFLAG_CUSTOM | FONTFLAG_OUTLINE)
 local toastList = {}
+
+local Toasts = {} -- so you can pcall it from other scripts
 
 engine.PlaySound("ui/buttonclick.wav")
 
 -- so i can trigger new toasts easily
-function toasts(text)
+function Toasts:Add(text)
     if #toastList < toastcap then
         table.insert(toastList, {text = text, time = globals.RealTime()})
     else
@@ -24,7 +26,12 @@ function toasts(text)
     end
 end
 
-function drawToasts()
+function Toasts:Think()
+
+    if engine.Con_IsVisible() or engine.IsGameUIVisible() then
+        return
+    end
+
     local w, h = draw.GetScreenSize()
     local drawy = 0
     local initialOffsetX = -150 -- starting x pos & fade length
@@ -32,7 +39,7 @@ function drawToasts()
     draw.SetFont(toastfont)
 
 --  for i = #toastList, 1, -1 do
--- replace "for i, toast in ipairs(toastList)" to make the toasts appear in reverse order
+--  replace "for i, toast in ipairs(toastList)" with this to make the toasts appear in reverse order
 
     for i, toast in ipairs(toastList) do
         local toast = toastList[i]
@@ -62,26 +69,42 @@ function drawToasts()
     end
 end
 
-toasts("Toasts loaded!")
-callbacks.Register("Draw", "drawToasts", drawToasts)
+Toasts:Add("Toasts loaded!")
+callbacks.Register("Draw", "drawToasts", Toasts.Think)
 
 local function damageLogger(event)
 
     if (event:GetName() == 'player_hurt') then
         local localPlayer = entities.GetLocalPlayer()
         local victim = entities.GetByUserID(event:GetInt("userid"))
+        local crit = event:GetInt("crit") == 1
+
+        local minicrit = event:GetInt("minicrit") == 1
         local health = event:GetInt("health")
         local attacker = entities.GetByUserID(event:GetInt("attacker"))
         local damage = event:GetInt("damageamount")
+        local critstr = ""
 
-        if (attacker == nil or localPlayer:GetIndex() ~= attacker:GetIndex() or localPlayer:GetIndex() == victim:GetIndex()) then
+        if (attacker == nil or localPlayer == nil or victim == nil or localPlayer:GetIndex() ~= attacker:GetIndex() or localPlayer:GetIndex() == victim:GetIndex()) then
             return
         end
 
-        local message = victim:GetName() .. " -" .. damage .. " hp (" .. health .. " left)"
+        local max_health = victim:GetMaxHealth()
+        if minicrit then critstr = "(minicrit)" end
+        if crit and not minicrit then critstr = "(crit)" end
+
+        local message = "You hit " .. victim:GetName() .. " for " .. damage .. " damage "
+        if health <= 0 then
+            message = message .. "(dead) "
+        else
+            message = message .. "(" .. health .. " / " .. max_health .. ") "
+        end
+        message = message .. critstr
       
-        toasts(message)
+        Toasts:Add(message)
     end
 end
 
 callbacks.Register("FireGameEvent", "exampledamageLogger", damageLogger)
+
+return Toasts

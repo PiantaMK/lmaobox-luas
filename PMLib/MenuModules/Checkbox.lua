@@ -1,5 +1,9 @@
 Checkbox = {}
 
+---@param x number
+---@param y number
+---@param varName string
+---@param label string
 function Checkbox:Checkbox(x, y, varName, label)
     local CHECKBOX_SIZE = 8
 
@@ -7,7 +11,7 @@ function Checkbox:Checkbox(x, y, varName, label)
         BlockInput = false
     end
 
-    if IsMouseInBounds(x, y, x+CHECKBOX_SIZE, y+CHECKBOX_SIZE) and input.IsButtonPressed(MOUSE_LEFT) and not BlockInput and not dropdown_open then
+    if IsMouseInBounds(x, y, x+CHECKBOX_SIZE, y+CHECKBOX_SIZE) and input.IsButtonPressed(MOUSE_LEFT) and not BlockInput and not Dropdown_open then
         Values[varName] = not Values[varName]
         BlockInput = true
     end
