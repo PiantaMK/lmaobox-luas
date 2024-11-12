@@ -1,24 +1,22 @@
-local words = {
-    f_word = "\x66\x75\x63\x6b\x69\x6e\x67",
-    ezfrags = "www.EZFrags.co.uk"
-}
+local fw = "\x66\x75\x63\x6b\x69\x6e\x67"
+local ef = "www.EZFrags.co.uk"
 
 local cheat_names = {
-    "lmaobox", "fedoraware", "nullcore", "sickcheat"
+    "lmaobox", "fedoraware", "nullcore", "sickcheat", "rijin", "moNNeybot"
 }
 
 local features = {
     "aimbot", "visuals", "resolver", "lagswitch", "prediction", "gamingcarpet",
-    "imaginary girlfriend", "keybind", "knifechanger", "vip hack",
+    "imaginary girlfriend", "keybind", "skinchanger", "vip hack",
     "window capture", "settings", "internet", "computer", "mother",
     "config", "brain", "screen capture", "steeringwheel assistance",
-    "serverside", "kfg", "minecraft cheat"
+    "serverside", "kfg", "minecraft cheat", "antiobs"
 }
 
 local adjectives = {
     "interesting", "lol", "nice", "plz give", "cool", "awesome",
     "breathtaking", "insane", "refund", "ahahahahah", "good", "fantastic",
-    "crazy", "amazing", "astonishing", "lidl", "mcdonalds", "shit", "nice " .. words.f_word,
+    "crazy", "amazing", "astonishing", "lidl", "mcdonalds", "shit", "nice " .. fw,
     "laughing my ass off about", "xDDDDDDDD", "crying emoji"
 }
 
@@ -30,12 +28,12 @@ local endings = {
 }
 
 local ezfrags = {
-    "Think you could do better? Not without " .. words.ezfrags,
-    "If I was cheating, I'd use " .. words.ezfrags,
-    "I'm not using " .. words.ezfrags .. ", you're just bad",
-    "Visit " .. words.ezfrags .. " for the finest public & private TF2 cheats",
-    "Stop being a noob! Get good with " .. words.ezfrags,
-    "You just got pwned by " .. words.ezfrags .. ", the #1 TF2 cheat"
+    "Think you could do better? Not without " .. ef,
+    "If I was cheating, I'd use " .. ef,
+    "I'm not using " .. ef .. ", you're just bad",
+    "Visit " .. ef .. " for the finest public & private TF2 cheats",
+    "Stop being a noob! Get good with " .. ef,
+    "You just got pwned by " .. ef .. ", the #1 TF2 cheat"
 }
 
 local function generate_callout()
@@ -57,7 +55,17 @@ local function generate_callout()
 
     if chosen_category == 4 then
         return finish
-    elseif start == "refund" or start == "laughing my ass off about" or start == "ahahahahah" or start == "xDDDDDDDD" or start == "lol" then
+    end
+
+    local special_starts = {
+        ["refund"] = true,
+        ["laughing my ass off about"] = true,
+        ["ahahahahah"] = true,
+        ["xDDDDDDDD"] = true,
+        ["lol"] = true
+    }
+
+    if special_starts[start] then
         return start .. " that " .. finish
     else
         return start .. " " .. finish

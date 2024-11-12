@@ -1,6 +1,6 @@
 -- original made by trophy: https://lmaobox.net/forum/v/profile/34535682/IamTheTrophy
--- available at: https://lmaobox.net/forum/v/discussion/21738
--- archive: https://pastebin.com/raw/2fuFsVx8
+-- original topic: https://lmaobox.net/forum/v/discussion/21738
+-- original version archive: https://pastebin.com/raw/2fuFsVx8
 
 local shadedButWorse = [["VertexLitGeneric"
 {
@@ -93,75 +93,91 @@ local plastic = [["VertexLitGeneric"
 ]]
 
 
-local MODUL_COLOR2 = 1
-local MODUL_PHONGTINT = 2
-local MODUL_ENVMAPTINT = 4
-local MODUL_SELFILLUMTINT = 8
-local MODUL_IGNOREZ = 16
-local MODUL_WIREFRAME = 32
+local function bitflags(n)
+    local result = {}
+    for i = 0, n - 1 do
+        table.insert(result, 2 ^ i)
+    end
+    return table.unpack(result)
+end
+
+local MODUL_COLOR2, MODUL_PHONGTINT, MODUL_ENVMAPTINT, MODUL_SELFILLUMTINT, MODUL_IGNOREZ, MODUL_WIREFRAME = bitflags(6)
 
 local function getMaterial(material, color, colorModules)
     if color then
         local colorString = ""
-        if colorModules & MODUL_COLOR2 ~= 0 then
-            colorString = colorString .. string.format([[
+        local function modulFlag(module, formatString)
+            if colorModules & module ~= 0 then
+                colorString = colorString .. string.format(formatString, color[1], color[2], color[3])
+            end
+        end
+
+        modulFlag(MODUL_COLOR2, [[
     $color2 "[%f %f %f]"
-]], color[1], color[2], color[3])
-        end
-        if colorModules & MODUL_PHONGTINT ~= 0 then
-            colorString = colorString .. string.format([[
+]])
+        modulFlag(MODUL_PHONGTINT, [[
     $phongtint "[%f %f %f]"
-]], color[1], color[2], color[3])
-        end
-        if colorModules & MODUL_ENVMAPTINT ~= 0 then
-            colorString = colorString .. string.format([[
+]])
+        modulFlag(MODUL_ENVMAPTINT, [[
     $envmaptint "[%f %f %f]"
-]], color[1], color[2], color[3])
-        end
-        if colorModules & MODUL_SELFILLUMTINT ~= 0 then
-            colorString = colorString .. string.format([[
+]])
+        modulFlag(MODUL_SELFILLUMTINT, [[
     $selfillumtint "[%f %f %f]"
-]], color[1], color[2], color[3])
-        end
-        if colorModules & MODUL_IGNOREZ ~= 0 then
-            colorString = colorString .. string.format([[
+]])
+        modulFlag(MODUL_IGNOREZ, [[
     $ignorez "1"
 ]])
-        end
-        if colorModules & MODUL_WIREFRAME ~= 0 then
-            colorString = colorString .. string.format([[
+        modulFlag(MODUL_WIREFRAME, [[
     $wireframe "1"
 ]])
-        end
         material = material:gsub("}\n?$", colorString .. "\n}")
     end
     return material
 end
 
 
-local enemyMaterial = materials.Create("enemyMaterial", getMaterial(shaded, {0, 1, 0}, MODUL_COLOR2 | MODUL_IGNOREZ))
-local teamMaterial = materials.Create("teamMaterial", getMaterial(fresnel, {1, 1, 1}, MODUL_ENVMAPTINT | MODUL_PHONGTINT | MODUL_WIREFRAME))
-local localPlayerMaterial = materials.Create("localPlayerMaterial", getMaterial(fresnel, {0, 1, 1}, MODUL_ENVMAPTINT | MODUL_PHONGTINT))
+local enemyMaterial = materials.Create(
+    "enemyMaterial", 
+    getMaterial(shaded, {0, 1, 0}, MODUL_COLOR2 | MODUL_IGNOREZ)
+)
 
-local function onDrawModel(drawModelContext)
-    local entity = drawModelContext:GetEntity()
-    if not (entity and entity:IsValid() and entity:IsAlive() and entity:GetClass() == "CTFPlayer") then
-        return
-    end
-    
-    local localPlayer = entities.GetLocalPlayer()
-    if not localPlayer then return end
-    
-    local entityTeam = entity:GetTeamNumber()
-    local localPlayerTeam = localPlayer:GetTeamNumber()
-    if entity == localPlayer then
-        drawModelContext:ForcedMaterialOverride(localPlayerMaterial)
-    elseif entityTeam == localPlayerTeam then
-        drawModelContext:ForcedMaterialOverride(teamMaterial)
-    else
-        drawModelContext:ForcedMaterialOverride(enemyMaterial)
+local teamMaterial = materials.Create(
+    "teamMaterial", 
+    getMaterial(fresnel, {1, 1, 1}, MODUL_ENVMAPTINT | MODUL_PHONGTINT | MODUL_WIREFRAME)
+)
+
+local localPlayerMaterial = materials.Create(
+    "localPlayerMaterial", 
+    getMaterial(fresnel, {0, 1, 1}, MODUL_ENVMAPTINT | MODUL_PHONGTINT)
+)
+
+-- local viewModelMaterial = materials.Create(
+--     "viewModelMaterial", 
+--     getMaterial(fresnel, {1, 0, 1}, MODUL_ENVMAPTINT | MODUL_PHONGTINT)
+-- )
+
+local function modelOverride(ctx)
+    local entity = ctx:GetEntity()
+    if entity and entity:IsValid() then
+        if entity:GetClass() == "CTFPlayer" and entity:IsAlive() then
+            local localPlayer = entities.GetLocalPlayer()
+            if not localPlayer then return end
+            
+            local entityTeam = entity:GetTeamNumber()
+            local localPlayerTeam = localPlayer:GetTeamNumber()
+
+            if entity == localPlayer then
+                ctx:ForcedMaterialOverride(localPlayerMaterial)
+            elseif entityTeam == localPlayerTeam then
+                ctx:ForcedMaterialOverride(teamMaterial)
+            else
+                ctx:ForcedMaterialOverride(enemyMaterial)
+            end
+        --elseif entity:GetClass() == "CTFViewModel" then
+        --    ctx:ForcedMaterialOverride(viewModelMaterial)
+        end
     end
 end
 
--- Register callback for drawing models
-callbacks.Register("DrawModel", "hook123", onDrawModel)
+callbacks.Unregister("DrawModel", "modelOverride")
+callbacks.Register("DrawModel", "modelOverride", modelOverride)
