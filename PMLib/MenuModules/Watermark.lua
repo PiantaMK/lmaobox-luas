@@ -1,3 +1,4 @@
+Watermark = {}
 Watermark = {
     font = draw.CreateFont("Tahoma", 12, 400, FONTFLAG_DROPSHADOW),
     dragging = false,
@@ -45,7 +46,7 @@ function Watermark:DrawWatermark()
     local mouseX, mouseY = input.GetMousePos()[1], input.GetMousePos()[2]
     local LMBDown = input.IsButtonDown(MOUSE_LEFT)
 
-    if IsMouseInBounds(w - Watermark.x - boxw, Watermark.y, w - Watermark.x, Watermark.y + boxh) and MENU_OPEN then
+    if IsMouseInBounds(w - Watermark.x - boxw, Watermark.y, w - Watermark.x, Watermark.y + boxh) and gui.IsMenuOpen() then
         if LMBDown and not previous_lmb then
             if not Watermark.dragging then
                 Watermark.dragging = true

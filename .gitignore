@@ -48,3 +48,7 @@ luac.out
 
 .vscode/
 _archive_menu.lua
+
+*.yaml
+*.py
+*.bat

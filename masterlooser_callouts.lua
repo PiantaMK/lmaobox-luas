@@ -1,22 +1,22 @@
-local fw = "\x66\x75\x63\x6b\x69\x6e\x67"
-local ef = "www.EZFrags.co.uk"
+local f = "\x66\x75\x63\x6b\x69\x6e\x67"
+local e = "www.EZFrags.co.uk"
 
 local cheat_names = {
-    "lmaobox", "fedoraware", "nullcore", "sickcheat", "rijin", "moNNeybot"
+    "lmaobox", "fedoraware", "nullcore", "sickcheat"
 }
 
 local features = {
     "aimbot", "visuals", "resolver", "lagswitch", "prediction", "gamingcarpet",
-    "imaginary girlfriend", "keybind", "skinchanger", "vip hack",
+    "imaginary girlfriend", "keybind", "knifechanger", "vip hack",
     "window capture", "settings", "internet", "computer", "mother",
     "config", "brain", "screen capture", "steeringwheel assistance",
-    "serverside", "kfg", "minecraft cheat", "antiobs"
+    "serverside", "kfg", "minecraft cheat"
 }
 
 local adjectives = {
     "interesting", "lol", "nice", "plz give", "cool", "awesome",
     "breathtaking", "insane", "refund", "ahahahahah", "good", "fantastic",
-    "crazy", "amazing", "astonishing", "lidl", "mcdonalds", "shit", "nice " .. fw,
+    "crazy", "amazing", "astonishing", "lidl", "mcdonalds", "shit", "nice " .. f,
     "laughing my ass off about", "xDDDDDDDD", "crying emoji"
 }
 
@@ -28,58 +28,52 @@ local endings = {
 }
 
 local ezfrags = {
-    "Think you could do better? Not without " .. ef,
-    "If I was cheating, I'd use " .. ef,
-    "I'm not using " .. ef .. ", you're just bad",
-    "Visit " .. ef .. " for the finest public & private TF2 cheats",
-    "Stop being a noob! Get good with " .. ef,
-    "You just got pwned by " .. ef .. ", the #1 TF2 cheat"
+    "Think you could do better? Not without " .. e,
+    "If I was cheating, I'd use " .. e,
+    "I'm not using " .. e .. ", you're just bad",
+    "Visit " .. e .. " for the finest public & private TF2 cheats",
+    "Stop being a noob! Get good with " .. e,
+    "You just got pwned by " .. e .. ", the #1 TF2 cheat"
 }
 
 local function generate_callout()
     local start = adjectives[math.random(#adjectives)]
-    local chosen_category = math.random(1, 5)
+    local category = math.random(1, 5)
 
     local finish
-    if chosen_category == 1 then
+    if category == 1 then
         finish = cheat_names[math.random(#cheat_names)]
-    elseif chosen_category == 2 then
+    elseif category == 2 then
         finish = features[math.random(#features)]
-    elseif chosen_category == 3 then
+    elseif category == 3 then
         finish = endings[math.random(#endings)]
-    elseif chosen_category == 4 then
+    elseif category == 4 then
         finish = ezfrags[math.random(#ezfrags)]
     else
         finish = endings[math.random(#endings)]
     end
 
-    if chosen_category == 4 then
+    if category == 4 then
         return finish
-    end
-
-    local special_starts = {
-        ["refund"] = true,
-        ["laughing my ass off about"] = true,
-        ["ahahahahah"] = true,
-        ["xDDDDDDDD"] = true,
-        ["lol"] = true
-    }
-
-    if special_starts[start] then
+    elseif start == "refund"
+            or start == "laughing my ass off about"
+            or start == "ahahahahah"
+            or start == "xDDDDDDDD"
+            or start == "lol" 
+            then
         return start .. " that " .. finish
     else
         return start .. " " .. finish
     end
 end
 
-local function send_chat_message()
-    local callout = generate_callout()
-    client.ChatSay(callout)
-end
+local lastCalloutTime = 0
+local calloutInterval = 10
 
 callbacks.Register("Draw", function()
     local currentTime = globals.RealTime()
-    if currentTime % 10 == 0 then -- % X is the intreval between messages
-        send_chat_message()
+    if currentTime - lastCalloutTime >= calloutInterval then
+        client.ChatSay(generate_callout())
+        lastCalloutTime = currentTime
     end
 end)

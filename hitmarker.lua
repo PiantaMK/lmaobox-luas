@@ -1,6 +1,9 @@
 local hitmarkers = {}
 local mostRecentHitmarker = nil
 
+-- SET TO FALSE TO TURN OFF HEALING INDICATORS
+local healinds = true
+
 -- SET TO FALSE TO USE 2D HITMARKERS
 local prefer3 = true
 
@@ -77,13 +80,13 @@ local function damageLogger(event)
         end
 
         updateHitmarker(victim, damage, crit, false)
-    elseif ev == 'player_healonhit' then
+    elseif ev == 'player_healonhit' and healinds then
         local amount = event:GetInt("amount")
         local healed = entities.GetByUserID(event:GetInt("userid"))
         if healed then
             updateHitmarker(healed, amount, false, true)
         end
-    elseif ev == 'player_healed' then
+    elseif ev == 'player_healed' and healinds then
         local patient = entities.GetByUserID(event:GetInt("patient"))
         local healer = entities.GetByUserID(event:GetInt("healer"))
         local amount = event:GetInt("amount")

@@ -1,36 +1,42 @@
+Keybind = {}
 Keybind = {
     font = draw.CreateFont("Tahoma", 12, 400, FONTFLAG_DROPSHADOW)
 }
 
-Keybind_indicator_state = {
+local idcounter = 0
+local function GetID()
+    idcounter = idcounter + 1
+    return idcounter
+end
+
+local Keybind_indicator_state = {
     dragging = false,
     drag_offset_x = 0,
     drag_offset_y = 0,
-    x = 500,  -- Initial position
-    y = 500   -- Initial position
+    x = draw.GetScreenSize()[1]//2,  -- initial position
+    y = draw.GetScreenSize()[2]//2   -- initial position
 }
 
-Keybind_states = {}
+local Keybind_states = {}
 
----@param x number
----@param y number
----@param w number
----@param h number
----@param varName string
+---@param val number
 ---@param label string
 ---@param initiallyToggle boolean
 ---@param noshowType boolean
 ---@param allowtypeChanges boolean
-function Keybind:Keybind(x, y, w, h, varName, label, initiallyToggle, noshowType, allowtypeChanges)
+---@param pos table {x, y, w, h}
+function Keybind:Keybind(val, label, initiallyToggle, noshowType, allowtypeChanges, pos)
+    local ID = GetID()
+    local x, y, w, h = pos[1], pos[2], pos[3], pos[4]
     
     noshowType = noshowType or false
     allowtypeChanges = allowtypeChanges or true
 
-    if not Keybind_states[varName] then
-        Keybind_states[varName] = {
+    if not Keybind_states[ID] then
+        Keybind_states[ID] = {
             label = label,
             waiting_for_keybind = false,
-            key = Values[varName] or nil,
+            key = val or nil,
             toggle = initiallyToggle,
             wasRightMouseDown = false,
             active = false,
@@ -39,18 +45,18 @@ function Keybind:Keybind(x, y, w, h, varName, label, initiallyToggle, noshowType
             allowtypeChanges = allowtypeChanges
         }
     end
-    local state = Keybind_states[varName]
+    local state = Keybind_states[ID]
     local key = state.key
     local ckey = KeyTable[key] or ""
     if state.waiting_for_keybind and input.IsButtonPressed(KEY_ESCAPE) then
         state.waiting_for_keybind = false
-        Keybind_states[varName].key = nil
+        Keybind_states[ID].key = nil
     end
     if state.waiting_for_keybind then
         ckey = "..."
         local pressedKey = GetPressedKey()
         if pressedKey ~= nil then
-            Values[varName] = pressedKey
+            val = pressedKey
             state.key = pressedKey
             state.waiting_for_keybind = false
         end
@@ -87,22 +93,23 @@ function Keybind:Keybind(x, y, w, h, varName, label, initiallyToggle, noshowType
         BlockInput = false
     end
     state.wasRightMouseDown = isRightMouseDown
+
+    return state.active
 end
 
+--! not sure if this works
 function Keybind:UpdateKeybindValues()
-    for varName, state in pairs(Keybind_states) do
+    for id, state in pairs(Keybind_states) do
         local key = state.key
         if key and not (engine.Con_IsVisible() or engine.IsGameUIVisible()) then
             if state.toggle then
                 if input.IsButtonPressed(key) and not state.keyPreviouslyPressed then
                     state.active = not state.active
-                    Values[varName] = state.active
                     state.keyPreviouslyPressed = true
                 elseif not input.IsButtonPressed(key) then
                     state.keyPreviouslyPressed = false
                 end
             else
-                Values[varName] = input.IsButtonPressed(key)
                 state.active = input.IsButtonPressed(key)
             end
         end
@@ -132,7 +139,7 @@ function Keybind:KeybindIndicator()
     end
     
     -- should we start dragging?
-    if IsMouseInBounds(Keybind_indicator_state.x - 70, Keybind_indicator_state.y - 10, Keybind_indicator_state.x + 70, Keybind_indicator_state.y + 10) and LMBPressed and not Keybind_indicator_state.dragging and MENU_OPEN then
+    if IsMouseInBounds(Keybind_indicator_state.x - 70, Keybind_indicator_state.y - 10, Keybind_indicator_state.x + 70, Keybind_indicator_state.y + 10) and LMBPressed and not Keybind_indicator_state.dragging and gui.IsMenuOpen() then
         Keybind_indicator_state.dragging = true
         Keybind_indicator_state.drag_offset_x = mouseX - Keybind_indicator_state.x
         Keybind_indicator_state.drag_offset_y = mouseY - Keybind_indicator_state.y
